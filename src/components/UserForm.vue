@@ -1,10 +1,45 @@
 <template>
-  <form @submit.prevent="submit">
-    <input type="text" v-model="userStore.user.userid" placeholder="User ID" />
-    <input type="text" v-model="userStore.user.name" placeholder="Name" />
-    <input type="email" v-model="userStore.user.email" placeholder="Email" />
-    <button type="submit">Submit</button>
-  </form>
+  <q-form
+    @submit.prevent="submit"
+    class="q-gutter-md q-pa-md bg-grey-2 rounded-borders shadow-2"
+    style="max-width: 400px; margin: auto"
+  >
+    <q-input
+      v-model="userStore.user.userid"
+      label="User ID"
+      outlined
+      dense
+      lazy-rules
+      :rules="[(val) => !!val || 'User ID is required']"
+    />
+
+    <q-input
+      v-model="userStore.user.name"
+      label="Name"
+      outlined
+      dense
+      lazy-rules
+      :rules="[(val) => !!val || 'Name is required']"
+    />
+
+    <q-input
+      v-model="userStore.user.email"
+      label="Email"
+      type="email"
+      outlined
+      dense
+      lazy-rules
+      :rules="[
+        (val) => !!val || 'Email is required',
+        (val) => /.+@.+\..+/.test(val) || 'Enter a valid email',
+      ]"
+    />
+
+    <div class="row justify-end q-gutter-sm">
+      <q-btn label="Submit" type="submit" color="primary" />
+      <q-btn label="Reset" type="reset" color="secondary" flat @click="resetForm" />
+    </div>
+  </q-form>
 </template>
 
 <script lang="ts">
@@ -17,10 +52,14 @@ export default defineComponent({
     const userStore = useUserStore();
 
     const submit = async () => {
-      await userStore.sendToBackend();
+      await userStore.insert();
     };
 
-    return { userStore, submit };
+    const resetForm = () => {
+      userStore.user = { userid: '', name: '', email: '' };
+    };
+
+    return { userStore, submit, resetForm };
   },
 });
 </script>
